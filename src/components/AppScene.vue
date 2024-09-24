@@ -57,11 +57,11 @@ class Teapot {
         }
     }
 
-    setTargetPosition(newPosition: number[]) {
+    setTargetPosition(newPosition: THREE.Vector3) {
         this.targetPosition = newPosition;
     }
 
-    rotateTowards(direction) {
+    rotateTowards(direction: THREE.Vector3) {
         this.isRotated = true;
         const angle = Math.atan2(direction.x, direction.z);
         this.mesh.rotation.y = angle - Math.PI / 2;
@@ -73,19 +73,21 @@ const camera = ref<THREE.PerspectiveCamera>();
 const teapot = new Teapot();
 const groundMesh = new Ground().mesh;
 
-const onSceneClick = (event) => {
+const onSceneClick = (event: any) => {
     const pointer = new THREE.Vector2(
         (event.clientX / window.innerWidth) * 2 - 1,
         -(event.clientY / window.innerHeight) * 2 + 1
     );
 
     const raycaster = new THREE.Raycaster();
-    raycaster.setFromCamera(pointer, camera.value);
+    if(camera?.value) {
+        raycaster.setFromCamera(pointer, camera.value);
+    }
 
     const intersects = raycaster.intersectObject(groundMesh);
     if (intersects.length > 0) {
         const { x: iX, z: iZ } = intersects[0].point;
-        teapot.setTargetPosition([iX, 1, iZ]);
+        teapot.setTargetPosition(new THREE.Vector3(iX, 1, iZ));
     }
 
     teapot.isRotated = false;
